@@ -1,9 +1,9 @@
-#Region ;**** Directives created by AutoIt3Wrapper_GUI ****
+#region ;**** Directives created by AutoIt3Wrapper_GUI ****
 #AutoIt3Wrapper_Icon=lib\ico\icon.ico
 #AutoIt3Wrapper_Compression=0
 #AutoIt3Wrapper_UseUpx=n
 #AutoIt3Wrapper_Res_requestedExecutionLevel=asInvoker
-#EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
+#endregion ;**** Directives created by AutoIt3Wrapper_GUI ****
 $checkx64 = @AutoItX64
 If $checkx64 = 1 Then
 	WinSetOnTop("Diablo III", "", 0)
@@ -14,7 +14,8 @@ EndIf
 
 $icon = @ScriptDir & "\lib\ico\icon.ico"
 TraySetIcon($icon)
-Sleep(5000) 
+
+
 
 ;;--------------------------------------------------------------------------------
 ;;      Initialize MouseCoords
@@ -27,17 +28,17 @@ Opt("MouseCoordMode", 2) ;1=absolute, 0=relative, 2=client
 ;;--------------------------------------------------------------------------------
 
 
-Global $GameOverTime,$GameFailed,$ClickToMoveToggle,$d3,$Step,$a_range,$ResActivated, _
-		$nb_die_t,$rdn_die_t,$ResLife,$Res_compt,$UsePath,$BanmonsterList,$File_Sequence,$TakeShrines
+Global $GameOverTime, $GameFailed, $ClickToMoveToggle, $d3, $Step, $a_range, $ResActivated, _
+		$nb_die_t, $rdn_die_t, $ResLife, $Res_compt, $UsePath, $BanmonsterList, $File_Sequence, $TakeShrines
 
-Global $Byte_NoItem_Identify,$Xp_Moy_Hrs, $ofs_objectmanager, $_MyGuid, $ofs_LocalActor_StrucSize, $_ActorAtrib_Count, _
+Global $Byte_NoItem_Identify, $Xp_Moy_Hrs, $ofs_objectmanager, $_MyGuid, $ofs_LocalActor_StrucSize, $_ActorAtrib_Count, _
 		$_ActorAtrib_4, $ofs_ActorAtrib_StrucSize, $GrabListTab, $ofs_LocalActor_atribGUID, _
 		$ofs_ActorDef, $ofs_MonsterDef, $_ofs_FileMonster_MonsterType, $_ofs_FileMonster_MonsterRace, _
 		$_ofs_FileMonster_LevelNormal, $_ofs_FileMonster_LevelNightmare, $_ofs_FileMonster_LevelHell, _
 		$_ofs_FileMonster_LevelInferno, $_defptr, $_defcount, $_deflink, $allSNOitems, $grablist, _
 		$Byte_Full_Inventory[2], $Byte_Full_Stash[2], $Byte_Boss_TpDeny[2]
 
-Global $GoldBySale = 0
+
 Global $Count_ACD = 0
 Global $GetACD
 Global $IgnoreItemList = ""
@@ -79,6 +80,7 @@ Local $posd3 = WinGetPos("Diablo III")
 Global $grabskip = 0
 Global $maxhp
 Global $mousedownleft = 0
+
 Global $spell_gestini_verif = 0
 Global $elite = 0
 Global $handle_banlist1 = ""
@@ -86,7 +88,7 @@ Global $handle_banlist2 = ""
 Global $handle_banlistdef = ""
 Global $Ban_startstrItemList = "barbarian_|Demonhunter_|Monk_|WitchDoctor_|WD_|Enchantress_|Scoundrel_|Templar_|Wizard_|monsterAffix_|Demonic_|Generic_|fallenShaman_fireBall_impact|demonFlyer_B_clickable_corpse_01|grenadier_proj_trail"
 Global $Ban_endstrItemList = "_projectile"
-Global $Ban_ItemACDCheckList = "a1_|a3_|a2_|a4_|Lore_Book_Flippy|Topaz_|Emeraude_|Rubis_|Amethyste_|healthPotion_Mythic|GoldCoins|GoldSmall|GoldMedium|GoldLarge"
+Global $Ban_ItemACDCheckList = "a1_|a3_|a2_|a4_|Lore_Book_Flippy|Topaz_|Emeraude_|Rubis_|Amethyste_|Console_PowerGlobe|GoldCoins|GoldSmall|GoldMedium|GoldLarge|healthPotion_Console"
 $successratio = 1
 $success = 0
 $DebugX = $posd3[0] + $posd3[2] + 10
@@ -129,8 +131,8 @@ CheckWindowD3()
 #include "lib\settings.au3"
 #include "lib\skills.au3"
 #include "toolkit.au3"
-#include "GDI_scene.au3"
-#Include <WinAPI.au3>
+;#include "GDI_scene.au3"
+#include <WinAPI.au3>
 
 ;;================================================================================
 ;; Set Some Hotkey
@@ -143,7 +145,9 @@ HotKeySet("{F3}", "TogglePause")
 ;;--------------------------------------------------------------------------------
 AdlibRegister("Die2Fast", 1200000)
 offsetlist()
+
 LoadingSNOExtended()
+
 Func _dorun()
 	_log("======== new run ==========")
 
@@ -152,9 +156,9 @@ Func _dorun()
 	WEnd
 
 	If $GameFailed = 0 Then
-        $success += 1
-    EndIf
-    $successratio = $success / $Totalruns
+		$success += 1
+	EndIf
+	$successratio = $success / $Totalruns
 
 
 	$GameFailed = 0
@@ -164,15 +168,24 @@ Func _dorun()
 	StatsDisplay()
 
 	If $hotkeycheck = 0 Then
+		_log("CheckHotkeys init")
 		CheckHotkeys()
+
+		_log("Auto_Spell_init init")
 		Auto_spell_init()
+		_log("GestSpellInit")
 		GestSpellInit()
+
+
+		_log("LoadAttribGlobalStuff init")
 		Load_Attrib_GlobalStuff()
+
+
 		$maxhp = GetAttribute($_MyGuid, $Atrib_Hitpoints_Max_Total) ; dirty placement
 		_log("Max HP : " & $maxhp)
 		GetMaxResource($_MyGuid, $namecharacter)
 		Send("t")
-		sleep(500)
+		Sleep(500)
 		Detect_Str_full_inventory()
 	EndIf
 
@@ -314,40 +327,138 @@ HotKeySet("{µ}", "MonsterListing")
 
 Func Testing_IterateObjetcsList()
 
-Local $index, $offset, $count, $item[10]
-startIterateObjectsList($index, $offset, $count)
+	Local $index, $offset, $count, $item[10]
+	startIterateObjectsList($index, $offset, $count)
 
 	While iterateObjectsList($index, $offset, $count, $item)
 
-					for $i=0 to Ubound($item) - 1
-						_log($item[$i])
-					Next
+		For $i = 0 To UBound($item) - 1
+			_log($item[$i])
+		Next
 
-					$ACD = GetACDOffsetByACDGUID($item[0])
-					$CurrentIdAttrib = _memoryread($ACD + 0x120, $d3, "ptr");
-					$quality = GetAttribute($CurrentIdAttrib, $Atrib_Item_Quality_Level)
+		$ACD = GetACDOffsetByACDGUID($item[0])
+		$CurrentIdAttrib = _memoryread($ACD + 0x120, $d3, "ptr");
+		$quality = GetAttribute($CurrentIdAttrib, $Atrib_Item_Quality_Level)
 
-					_log('quality : ' & $quality)
-					_log("--------")
-					_log("--------")
-			WEnd
-EndFunc
+		_log('quality : ' & $quality)
+		_log("--------")
+		_log("--------")
+	WEnd
+EndFunc   ;==>Testing_IterateObjetcsList
 
 
 
 Func Testing()
 
-	offsetlist()
-GetRepairTab()
-	StashAndRepair()
+;offsetlist()
 
-EndFunc   ;==>Testing
+;_checkbackpacksize()
+#cs
+	Local $index, $offset, $count, $item[10]
+	startIterateObjectsList($index, $offset, $count)
+
+	GLOBAL $ItemRefresh = false
+	Global $gestion_affixe_loot = false
+	$banlist = ""
+	dim $items
+	;_log("count -> " & $count)
+	While iterateObjectsList($index, $offset, $count, $item)
+			_log("Ofs : " & $item[8]  & " - "  & $item[1] & " - Data 1 : " & $item[5] & " - Data 2 : " & $item[6] & " - Guid : " & $item[0])
+
+			;if is_loot($item) then
+			;	handle_loot($item, $banlist, $items)
+			;EndIf
+
+	WEnd
+	;_log("Actor Ofs -> " & hex(GetPlayerOffset()))
+#ce
+
+;GetAct()
+;ListUi(0)
+
+;_log($_Myoffset)
+
+
+
+;Load_Attrib_GlobalStuff()
+;$maxhp = GetAttribute($_MyGuid, $Atrib_Hitpoints_Max_Total) ; dirty placement
+;GetMaxResource($_MyGuid, $namecharacter)
+
+;Load_Attrib_GlobalStuff()
+;GetMaxResource($_MyGuid, $namecharacter)
+;if _playerdead() then
+;	_log("mort")
+;else
+;	_log("en vie")
+;endif
+;InteractByActorName('Player_Shared_Stash')
+
+
+;Auto_spell_init()
+;GestSpellInit()
+;GetMaxResource($_MyGuid, $namecharacter)
+
+;Global $shrinebanlist = ""
+;Global $a_range = 999999
+;Global $MonsterList = "Beast_B|Goblin|Goatman_M|Goatman_R|WitherMoth|Beast_A|Scavenger|zombie|Corpulent|Skeleton|QuillDemon|FleshPitFlyer|Succubus|Scorpion|azmodanBodyguard|succubus|ThousandPounder|FallenGrunt|FallenChampion|FallenHound|FallenShaman|GoatMutant|demonTrooper_|creepMob|Brickhouse_A|Brickhouse_B|Triune_|TriuneVesselActivated_|TriuneVessel|Triune_Summonable_|ConductorProxyMaster|sandWasp|TriuneCultist|SandShark|Lacuni|Ghoul_|Uber|GoatMutant_Ranged_A|GoatMutant_Melee_A|fastMummy_C|demonFlyer|WoodWraith|TriuneVessel_|snakeMan_|uber_|Uber"
+;Attack()
+
+
+;ListUi(1)
+
+#cs
+_log( "2 : "  & GetTextUI(1540, "Root.NormalLayer.WaypointMap_main.LayoutRoot.OverlayContainer.POI.entry 2.LayoutRoot.Name"))
+_log("3 : "  &GetTextUI(375, "Root.NormalLayer.WaypointMap_main.LayoutRoot.OverlayContainer.POI.entry 3.LayoutRoot.Name"))
+_log("4 : "  &GetTextUI(646, "Root.NormalLayer.WaypointMap_main.LayoutRoot.OverlayContainer.POI.entry 4.LayoutRoot.Name"))
+_log("5 : "  &GetTextUI(302, "Root.NormalLayer.WaypointMap_main.LayoutRoot.OverlayContainer.POI.entry 5.LayoutRoot.Name"))
+_log("6 : "  &GetTextUI(579, "Root.NormalLayer.WaypointMap_main.LayoutRoot.OverlayContainer.POI.entry 6.LayoutRoot.Name"))
+_log("7 : "  &GetTextUI(1898, "Root.NormalLayer.WaypointMap_main.LayoutRoot.OverlayContainer.POI.entry 7.LayoutRoot.Name"))
+_log("8 : "  &GetTextUI(176, "Root.NormalLayer.WaypointMap_main.LayoutRoot.OverlayContainer.POI.entry 8.LayoutRoot.Name"))
+_log("9 : "  &GetTextUI(502, "Root.NormalLayer.WaypointMap_main.LayoutRoot.OverlayContainer.POI.entry 9.LayoutRoot.Name"))
+_log("10 : "  &GetTextUI(1270, "Root.NormalLayer.WaypointMap_main.LayoutRoot.OverlayContainer.POI.entry 10.LayoutRoot.Name"))
+#ce
+
+
+;TakeWPV2(0)
+
+#cs
+$result = GetOfsUI("Root.NormalLayer.WaypointMap_main.LayoutRoot.OverlayContainer.POI.entry 1.LayoutRoot.Name", 1)
+_log($result)
+Dim $Point = GetPositionUI($result)
+Dim $Point2 = GetUIRectangle($Point[0], $Point[1], $Point[2], $Point[3])
+
+MouseMove($Point2[0] + $Point2[2] / 2, $Point2[1] + $Point2[3] / 2, 1)
+#ce
+
+;TakeWPV2(0)i
+
+;Detect_Str_full_inventory()
+;listui(1)
+
+;Repair()
+;Detect_Str_full_inventory()
+
+;StashAndRepair()
+;_log(fastcheckuiitemvisible("Root.NormalLayer.shop_dialog_mainPage.repair_dialog.RepairEquipped", 1, 124))
+
+;enoughtPotions()
+;ClickOnStashTab(1)
+
+;offsetlist()
+;_log("ETAT TP -> " &  _memoryRead( _memoryRead($_Myoffset + 0x1a4, $d3, "ptr") + 0x18, $d3, "int"))
+
+;_log(fastcheckuiitemactived("Root.NormalLayer.deathmenu_dialog.dialog_main.button_revive_at_corpse", 139))
+ClickUI("Root.NormalLayer.deathmenu_dialog.dialog_main.button_revive_in_town", 496)
+
+EndFunc   ;==>Testing ##*******##*******##*******##*******##*******##*******##*******##*******##*******##*******##*******##*******###
+
+
 
 
 ;###########################################################################
 ;###########################################################################
 ;###########################################################################
-;###########################################################################
+;################iiiiii###########################################################
 ;###########################################################################
 ;###########################################################################
 
@@ -355,218 +466,219 @@ EndFunc   ;==>Testing
 Global $Scene_table_totale[1][10]
 Global $NavCell_table_totale[1][10]
 Global $Scene_table_id_scene[1]
-
+#cs
 Func Read_Scene()
 
 	$nb_totale_scene_record = 0
-	$up = false
+	$up = False
 
-While 1
+	While 1
 
-	$ObManStoragePtr = _MemoryRead($ofs_objectmanager, $d3, "ptr")
-	$offset = $ObManStoragePtr + 0x794 + 0x178
-	$sceneCountPtr = _MemoryRead($offset, $d3, "ptr") + 0x108
-	$countScene = _MemoryRead($sceneCountPtr, $d3, "int")
+		$ObManStoragePtr = _MemoryRead($ofs_objectmanager, $d3, "ptr")
+		$offset = $ObManStoragePtr + 0x794 + 0x178
+		$sceneCountPtr = _MemoryRead($offset, $d3, "ptr") + 0x108
+		$countScene = _MemoryRead($sceneCountPtr, $d3, "int")
 
-	$sceneFirstPtr = _MemoryRead($offset, $d3, "ptr") + 0x148
-	Dim $obj_scene[1][10]
-	$count = 0
+		$sceneFirstPtr = _MemoryRead($offset, $d3, "ptr") + 0x148
+		Dim $obj_scene[1][10]
+		$count = 0
 
-	;################################## ITERATION OBJ SCENE ########################################
-	for $i=0 to $countScene
-		$scenePtr = _MemoryRead($sceneFirstPtr, $d3, "ptr") + $i * 0x2A8
+		;################################## ITERATION OBJ SCENE ########################################
+		For $i = 0 To $countScene
+			$scenePtr = _MemoryRead($sceneFirstPtr, $d3, "ptr") + $i * 0x2A8
 
-		$temp_id_world = _MemoryRead ( $scenePtr + 0x008, $d3, "ptr") ;id world
-		$temp_id_scene = _MemoryRead ( $scenePtr, $d3, "ptr") ;id world
-		$correlation = true
+			$temp_id_world = _MemoryRead($scenePtr + 0x008, $d3, "ptr") ;id world
+			$temp_id_scene = _MemoryRead($scenePtr, $d3, "ptr") ;id world
+			$correlation = True
 
 
 
-		If $temp_id_world = $_MyACDWorld AND $temp_id_scene <> 0xFFFFFFFF Then;id world
+			If $temp_id_world = $_MyACDWorld And $temp_id_scene <> 0xFFFFFFFF Then;id world
 
-			If $nb_totale_scene_record = 0 Then
-				$Scene_table_id_scene[0] = $temp_id_scene
-				$nb_totale_scene_record += 1
-			Else
-				for $a=0 to Ubound($Scene_table_id_scene) - 1
-					If $Scene_table_id_scene[$a] = $temp_id_scene Then
-						$correlation = false
-						ExitLoop
-					EndIf
-				Next
-					If $correlation = true Then
-						$Ucount=Ubound($Scene_table_id_scene)
-						Redim $Scene_table_id_scene[$Ucount+1]
+				If $nb_totale_scene_record = 0 Then
+					$Scene_table_id_scene[0] = $temp_id_scene
+					$nb_totale_scene_record += 1
+				Else
+					For $a = 0 To UBound($Scene_table_id_scene) - 1
+						If $Scene_table_id_scene[$a] = $temp_id_scene Then
+							$correlation = False
+							ExitLoop
+						EndIf
+					Next
+					If $correlation = True Then
+						$Ucount = UBound($Scene_table_id_scene)
+						ReDim $Scene_table_id_scene[$Ucount + 1]
 						$Scene_table_id_scene[$Ucount] = $temp_id_scene
-					EndIF
-			EndIF
+					EndIf
+				EndIf
 
-			If $correlation = true Then
+				If $correlation = True Then
 
-				$nb_totale_scene_record += 1
-				$count += 1
-				ReDim $obj_scene[$count][10]
+					$nb_totale_scene_record += 1
+					$count += 1
+					ReDim $obj_scene[$count][10]
 
-				$obj_scene[$count-1][0] = $temp_id_scene ;id_scene
-				$scenePtr += 0x004
-				$obj_scene[$count-1][1] = $temp_id_world ;id world
-				$obj_scene[$count-1][2] = _MemoryRead ( $scenePtr + 0x014, $d3, "int") ;sno_levelarea
-				$obj_scene[$count-1][3] = _MemoryRead ( $scenePtr + 0x0D8, $d3, "ptr") ;id_sno_scene
+					$obj_scene[$count - 1][0] = $temp_id_scene ;id_scene
+					$scenePtr += 0x004
+					$obj_scene[$count - 1][1] = $temp_id_world ;id world
+					$obj_scene[$count - 1][2] = _MemoryRead($scenePtr + 0x014, $d3, "int") ;sno_levelarea
+					$obj_scene[$count - 1][3] = _MemoryRead($scenePtr + 0x0D8, $d3, "ptr") ;id_sno_scene
 
-				$obj_scene[$count-1][4] = _MemoryRead ( $scenePtr + 0x0EC, $d3, "float") ;Vec2 Meshmin x
-				$obj_scene[$count-1][5] = _MemoryRead ( $scenePtr + 0x0F0, $d3, "float") ;Vec2 Meshmin y
-				$obj_scene[$count-1][6] = _MemoryRead ( $scenePtr + 0x0F4, $d3, "float") ;Vec2 Meshmin z
+					$obj_scene[$count - 1][4] = _MemoryRead($scenePtr + 0x0EC, $d3, "float") ;Vec2 Meshmin x
+					$obj_scene[$count - 1][5] = _MemoryRead($scenePtr + 0x0F0, $d3, "float") ;Vec2 Meshmin y
+					$obj_scene[$count - 1][6] = _MemoryRead($scenePtr + 0x0F4, $d3, "float") ;Vec2 Meshmin z
 
-				$obj_scene[$count-1][7] = _MemoryRead ( $scenePtr + 0x164, $d3, "float") ;Vec2 Meshmax x
-				$obj_scene[$count-1][8] = _MemoryRead ( $scenePtr + 0x168, $d3, "float") ;Vec2 Meshmax y
-				$obj_scene[$count-1][9] = _MemoryRead ( $scenePtr + 0x16C, $d3, "float") ;Vec2 Meshmax z
+					$obj_scene[$count - 1][7] = _MemoryRead($scenePtr + 0x164, $d3, "float") ;Vec2 Meshmax x
+					$obj_scene[$count - 1][8] = _MemoryRead($scenePtr + 0x168, $d3, "float") ;Vec2 Meshmax y
+					$obj_scene[$count - 1][9] = _MemoryRead($scenePtr + 0x16C, $d3, "float") ;Vec2 Meshmax z
 
 
-				ReDim $Scene_table_totale[$nb_totale_scene_record][10]
+					ReDim $Scene_table_totale[$nb_totale_scene_record][10]
 
-				$Scene_table_totale[$nb_totale_scene_record-1][0] = $obj_scene[$count-1][0]
-				$Scene_table_totale[$nb_totale_scene_record-1][1] = $obj_scene[$count-1][1]
-				$Scene_table_totale[$nb_totale_scene_record-1][2] = $obj_scene[$count-1][2]
-				$Scene_table_totale[$nb_totale_scene_record-1][3] = $obj_scene[$count-1][3]
-				$Scene_table_totale[$nb_totale_scene_record-1][4] = $obj_scene[$count-1][4]
-				$Scene_table_totale[$nb_totale_scene_record-1][5] = $obj_scene[$count-1][5]
-				$Scene_table_totale[$nb_totale_scene_record-1][6] = $obj_scene[$count-1][6]
-				$Scene_table_totale[$nb_totale_scene_record-1][7] = $obj_scene[$count-1][7]
-				$Scene_table_totale[$nb_totale_scene_record-1][8] = $obj_scene[$count-1][8]
-				$Scene_table_totale[$nb_totale_scene_record-1][9] = $obj_scene[$count-1][9]
+					$Scene_table_totale[$nb_totale_scene_record - 1][0] = $obj_scene[$count - 1][0]
+					$Scene_table_totale[$nb_totale_scene_record - 1][1] = $obj_scene[$count - 1][1]
+					$Scene_table_totale[$nb_totale_scene_record - 1][2] = $obj_scene[$count - 1][2]
+					$Scene_table_totale[$nb_totale_scene_record - 1][3] = $obj_scene[$count - 1][3]
+					$Scene_table_totale[$nb_totale_scene_record - 1][4] = $obj_scene[$count - 1][4]
+					$Scene_table_totale[$nb_totale_scene_record - 1][5] = $obj_scene[$count - 1][5]
+					$Scene_table_totale[$nb_totale_scene_record - 1][6] = $obj_scene[$count - 1][6]
+					$Scene_table_totale[$nb_totale_scene_record - 1][7] = $obj_scene[$count - 1][7]
+					$Scene_table_totale[$nb_totale_scene_record - 1][8] = $obj_scene[$count - 1][8]
+					$Scene_table_totale[$nb_totale_scene_record - 1][9] = $obj_scene[$count - 1][9]
+
+
+				EndIf
 
 
 			EndIf
 
-
-		EndIf
-
-	Next
-	;################################################################################################
+		Next
+		;################################################################################################
 
 
-	Dim $list_sno_scene = IndexSNO(0x18EDF60,0)
+		Dim $list_sno_scene = IndexSNO(0x18EDF60, 0)
 
 
-	;############################## ITERATION DU SNO ################################################
-	for $i=1 to Ubound($list_sno_scene) - 1
-		$correlation = false
-		$current_obj_scene = 0
+		;############################## ITERATION DU SNO ################################################
+		For $i = 1 To UBound($list_sno_scene) - 1
+			$correlation = False
+			$current_obj_scene = 0
 
-			for $x=0 To Ubound($obj_scene)-1
-				if $list_sno_scene[$i][1] = $obj_scene[$x][3] Then
-					$correlation = true
+			For $x = 0 To UBound($obj_scene) - 1
+				If $list_sno_scene[$i][1] = $obj_scene[$x][3] Then
+					$correlation = True
 					$current_obj_scene = $x
 				EndIf
 			Next
 
-		if $correlation Then
-			$NavMeshDef = $list_sno_scene[$i][0] + 0x040
-			$NavZoneDef = $list_sno_scene[$i][0] + 0x280
+			If $correlation Then
+				$NavMeshDef = $list_sno_scene[$i][0] + 0x040
+				$NavZoneDef = $list_sno_scene[$i][0] + 0x280
 
-			;############## ITERATION DES NAVCELL ################
-			$CountNavCell = _memoryRead($NavZoneDef, $d3, "int")
-			$NavCellPtr = _memoryRead($NavZoneDef + 0x08, $d3, "ptr")
+				;############## ITERATION DES NAVCELL ################
+				$CountNavCell = _memoryRead($NavZoneDef, $d3, "int")
+				$NavCellPtr = _memoryRead($NavZoneDef + 0x08, $d3, "ptr")
 
-			If $CountNavCell <> 0 Then
-				Dim $Navcell_Table[$CountNavCell][9]
-				Local $NavCellStruct = DllStructCreate("float;float;float;float;float;float;short;short;int")
+				If $CountNavCell <> 0 Then
+					Dim $Navcell_Table[$CountNavCell][9]
+					Local $NavCellStruct = DllStructCreate("float;float;float;float;float;float;short;short;int")
 
-				for $t=0 To $CountNavCell - 1
+					For $t = 0 To $CountNavCell - 1
 
-					DllCall($d3[0], 'int', 'ReadProcessMemory', 'int', $d3[1], 'int', $NavCellPtr + ($t * 0x20), 'ptr', DllStructGetPtr($NavCellStruct), 'int', DllStructGetSize($NavCellStruct), 'int', '')
+						DllCall($d3[0], 'int', 'ReadProcessMemory', 'int', $d3[1], 'int', $NavCellPtr + ($t * 0x20), 'ptr', DllStructGetPtr($NavCellStruct), 'int', DllStructGetSize($NavCellStruct), 'int', '')
 
-					If Mod( DllStructGetData($NavCellStruct, 7) , 2) = 1 Then
-						$flag = 1
-					Else
-						$flag = 0
-					EndIf
+						If Mod(DllStructGetData($NavCellStruct, 7), 2) = 1 Then
+							$flag = 1
+						Else
+							$flag = 0
+						EndIf
 
-					If Ubound($NavCell_table_totale) - 1 = 0 AND $up = false Then
-						$up = true
-					Else
-						Redim $NavCell_table_totale[Ubound($NavCell_table_totale)+1][10]
-					EndIF
+						If UBound($NavCell_table_totale) - 1 = 0 And $up = False Then
+							$up = True
+						Else
+							ReDim $NavCell_table_totale[UBound($NavCell_table_totale) + 1][10]
+						EndIf
 
-					$num = Ubound($NavCell_table_totale)-1
-					$NavCell_Table_Totale[$num][0] = DllStructGetData($NavCellStruct, 1)
-					$NavCell_Table_Totale[$num][1] = DllStructGetData($NavCellStruct, 2)
-					$NavCell_Table_Totale[$num][2] = DllStructGetData($NavCellStruct, 3)
-					$NavCell_Table_Totale[$num][3] = DllStructGetData($NavCellStruct, 4)
-					$NavCell_Table_Totale[$num][4] = DllStructGetData($NavCellStruct, 5)
-					$NavCell_Table_Totale[$num][5] = DllStructGetData($NavCellStruct, 6)
-					$NavCell_Table_Totale[$num][6] = $flag
-					$NavCell_Table_Totale[$num][7] = DllStructGetData($NavCellStruct, 8)
-					$NavCell_Table_Totale[$num][8] = DllStructGetData($NavCellStruct, 9)
-					$NavCell_Table_Totale[$num][9] = $obj_scene[$current_obj_scene][0]
-				Next
-			Else
+						$num = UBound($NavCell_table_totale) - 1
+						$NavCell_Table_Totale[$num][0] = DllStructGetData($NavCellStruct, 1)
+						$NavCell_Table_Totale[$num][1] = DllStructGetData($NavCellStruct, 2)
+						$NavCell_Table_Totale[$num][2] = DllStructGetData($NavCellStruct, 3)
+						$NavCell_Table_Totale[$num][3] = DllStructGetData($NavCellStruct, 4)
+						$NavCell_Table_Totale[$num][4] = DllStructGetData($NavCellStruct, 5)
+						$NavCell_Table_Totale[$num][5] = DllStructGetData($NavCellStruct, 6)
+						$NavCell_Table_Totale[$num][6] = $flag
+						$NavCell_Table_Totale[$num][7] = DllStructGetData($NavCellStruct, 8)
+						$NavCell_Table_Totale[$num][8] = DllStructGetData($NavCellStruct, 9)
+						$NavCell_Table_Totale[$num][9] = $obj_scene[$current_obj_scene][0]
+					Next
+				Else
 
-				For $a=0 to Ubound($Scene_table_id_scene) -1
-					If $Scene_table_id_scene[$a] = $obj_scene[$current_obj_scene][0] Then
-						_ArrayDelete($Scene_table_id_scene, $a)
-						ExitLoop
-					EndIF
-				Next
+					For $a = 0 To UBound($Scene_table_id_scene) - 1
+						If $Scene_table_id_scene[$a] = $obj_scene[$current_obj_scene][0] Then
+							_ArrayDelete($Scene_table_id_scene, $a)
+							ExitLoop
+						EndIf
+					Next
 
-				For $a=0 To Ubound($Scene_table_totale) - 1
-					If $Scene_table_totale[$a][0] = $obj_scene[$current_obj_scene][0] Then
-						_Array2DDelete($Scene_table_totale, $a)
-						$nb_totale_scene_record -= 1
-						ExitLoop
-					EndIf
-				Next
+					For $a = 0 To UBound($Scene_table_totale) - 1
+						If $Scene_table_totale[$a][0] = $obj_scene[$current_obj_scene][0] Then
+							_Array2DDelete($Scene_table_totale, $a)
+							$nb_totale_scene_record -= 1
+							ExitLoop
+						EndIf
+					Next
 
-			EndIF
+				EndIf
 
-		EndIf
-	Next
-
-	_log("fin Iteration")
-	sleep(500)
-WEnd
-
-EndFunc
-
-
-Func Drawn()
-		_log("taille du tab Scene-> " & Ubound($Scene_table_totale))
-		_log("taille du tab NavCell-> " & Ubound($NavCell_Table_Totale))
-		;_ArrayDisplay($Scene_table_id_scene)
-		Dim $buffMax[2] = [0, 0]
-		Dim $buffMin[2] = [999999999, 99999999]
-		Dim $indexMax[2] = [0, 0] ; 0 -> Index MeshMax X le plus grand | 1 -> Index MEshMax Y le plus grand
-		Dim $indexMin[2] = [999999999, 99999999]
-
-		For $i=0 To Ubound($Scene_table_totale) - 1
-			if $buffMax[0] < $Scene_table_totale[$i][7] Then
-				$buffMax[0] = $Scene_table_totale[$i][7]
-				$indexMax[0] = $i
-			EndIF
-
-			if $buffMin[0] > $Scene_table_totale[$i][4] Then
-				$buffMin[0] = $Scene_table_totale[$i][4]
-				$indexMin[0] = $i
-			EndIf
-
-
-			If $buffMax[1] < $Scene_table_totale[$i][8] Then
-				$buffMax[1] = $Scene_table_totale[$i][8]
-				$indexMax[1] = $i
-			EndIf
-
-			if $buffMin[1] > $Scene_table_totale[$i][5] Then
-				$buffMin[1] = $Scene_table_totale[$i][5]
-				$indexMin[1] = $i
 			EndIf
 		Next
+
+		_log("fin Iteration")
+		Sleep(500)
+	WEnd
+
+EndFunc   ;==>Read_Scene
+#ce
+
+#cs
+Func Drawn()
+	_log("taille du tab Scene-> " & UBound($Scene_table_totale))
+	_log("taille du tab NavCell-> " & UBound($NavCell_Table_Totale))
+	;_ArrayDisplay($Scene_table_id_scene)
+	Dim $buffMax[2] = [0, 0]
+	Dim $buffMin[2] = [999999999, 99999999]
+	Dim $indexMax[2] = [0, 0] ; 0 -> Index MeshMax X le plus grand | 1 -> Index MEshMax Y le plus grand
+	Dim $indexMin[2] = [999999999, 99999999]
+
+	For $i = 0 To UBound($Scene_table_totale) - 1
+		If $buffMax[0] < $Scene_table_totale[$i][7] Then
+			$buffMax[0] = $Scene_table_totale[$i][7]
+			$indexMax[0] = $i
+		EndIf
+
+		If $buffMin[0] > $Scene_table_totale[$i][4] Then
+			$buffMin[0] = $Scene_table_totale[$i][4]
+			$indexMin[0] = $i
+		EndIf
+
+
+		If $buffMax[1] < $Scene_table_totale[$i][8] Then
+			$buffMax[1] = $Scene_table_totale[$i][8]
+			$indexMax[1] = $i
+		EndIf
+
+		If $buffMin[1] > $Scene_table_totale[$i][5] Then
+			$buffMin[1] = $Scene_table_totale[$i][5]
+			$indexMin[1] = $i
+		EndIf
+	Next
 
 	Initiate_GDIpicture($Scene_table_totale[$indexMax[1]][8] - $Scene_table_totale[$indexMin[1]][5], $Scene_table_totale[$indexMax[0]][7] - $Scene_table_totale[$indexMin[0]][4])
 
 
 
-	for $i=0 To Ubound($Scene_table_totale) - 1
-		for $y=0 To Ubound($NavCell_Table_Totale) - 1
+	For $i = 0 To UBound($Scene_table_totale) - 1
+		For $y = 0 To UBound($NavCell_Table_Totale) - 1
 
 			If $Scene_table_totale[$i][0] = $NavCell_Table_Totale[$y][9] Then
 
@@ -586,7 +698,7 @@ Func Drawn()
 
 				Draw_Nav($vy, $vx, $flag, $ty, $tx)
 
-			EndIF
+			EndIf
 		Next
 
 		;Draw_Nav(($Scene_table_totale[$i][5] - $Scene_table_totale[$indexMin[1]][5]), ($Scene_table_totale[$i][4] - $Scene_table_totale[$indexMin[0]][4]), 3, $Scene_table_totale[$i][8] - $Scene_table_totale[$i][5], $Scene_table_totale[$i][7] - $Scene_table_totale[$i][4])
@@ -594,26 +706,21 @@ Func Drawn()
 
 	Save_GDIpicture()
 	Load_GDIpicture()
-EndFunc
-
-
-
-
-
-
-
+EndFunc   ;==>Drawn
+#ce
 
 HotKeySet("{F1}", "Testing")
 HotKeySet("{F4}", "Testing_IterateObjetcsList")
 
-HotKeyset("{F6}", "Read_Scene")
-HotKeySet("{F7}", "Drawn")
+;HotKeySet("{F6}", "Read_Scene")
+;HotKeySet("{F7}", "Drawn")
 
 If $Devmode <> "true" Then
 	_botting()
-
 EndIf
+
 While 1
+sleep(5)
 WEnd
 
 ;;--------------------------------------------------------------------------------
@@ -651,7 +758,7 @@ Func Buffinit()
 	EndIf
 	If $PreBuff1 = "true" Then
 		buff1()
-		Sleep(400)
+		Sleep(150)
 	EndIf
 	If $delaiBuff2 Then
 		AdlibRegister("buff2", $delaiBuff2 * Random(1, 1.2))
@@ -659,7 +766,7 @@ Func Buffinit()
 	EndIf
 	If $PreBuff2 = "true" Then
 		buff2()
-		Sleep(400)
+		Sleep(150)
 	EndIf
 	If $delaiBuff3 Then
 		AdlibRegister("buff3", $delaiBuff3 * Random(1, 1.2))
@@ -667,7 +774,7 @@ Func Buffinit()
 	EndIf
 	If $PreBuff3 = "true" Then
 		buff3()
-		Sleep(400)
+		Sleep(150)
 	EndIf
 	If $delaiBuff4 Then
 		AdlibRegister("buff4", $delaiBuff4 * Random(1, 1.2))
@@ -675,7 +782,7 @@ Func Buffinit()
 	EndIf
 	If $PreBuff4 = "true" Then
 		buff4()
-		Sleep(400)
+		Sleep(150)
 	EndIf
 EndFunc   ;==>Buffinit
 
